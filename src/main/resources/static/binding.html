@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <meta http-equiv="pragram" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <title>欢迎您访问宝鸡人社微信公众号</title>
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="css/mui.css" rel="stylesheet" type="text/css"/>
+    <link href="css/weui.css" rel="stylesheet" type="text/css"/>
+    <link href="css/weuix.css" rel="stylesheet" type="text/css"/>
+    <link href="css/css.css" rel="stylesheet" type="text/css"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+    <script>eruda.init();</script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/rem.js"></script>
+    <script src="js/zepto.min.js"></script>
+    <script src="js/zepto.weui.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/ajax.js"></script>
+    <script src="js/securty.js"></script>
+    <script src="js/jsencrypt.js"></script>
+    <script src="js/jsencrypt.min.js"></script>
+    <script src="js/rsaUtil.js"></script>
+</head>
+
+<body class="loginbody">
+<header class="mui-bar mui-bar-nav">
+    <h1 class="mui-title">绑定</h1>
+</header>
+<div class="mui-content">
+    <main class="top-login"></main>
+    <h3 class="logintitle">绑定身份信息</h3>
+    <section class="loginpanel">
+        <form class="mui-input-group">
+            <div class="mui-input-row">
+                <span class="idimg"></span>
+                <input type="text" name="realName" id="realName" class="mui-input-clear" placeholder="请输入真实姓名">
+            </div>
+            <div class="mui-input-row">
+                <span class="idimg"></span>
+                <input type="text" name="idCard" id="idCard" class="mui-input-clear" placeholder="请输入身份证号">
+            </div>
+            <div class="mui-button-row" style="margin-top: 35px;">
+                <button type="button" class="weui-btn bg-blue btn" onclick="bindingWx()">绑定</button>
+                <button type="button" class="weui-btn bg-blue btn" style="background-color: #eceff2;color: black;" onclick="cancelLogin()">取消</button>
+            </div>
+        </form>
+    </section>
+</div>
+</body>
+<script>
+    var accessToken = '';
+    var openId = '';
+    var url = window.location.search;
+    console.log("url is " + url);
+    if(url.indexOf("?")!==-1){
+        var data = url.substr(1);
+        console.log("data is " + data);
+        var params= data.split("&");
+        console.log("params is " + params);
+        if (params.length > 0) {
+            for (var i = 0; i < params.length; i++) {
+                var entry = params[i].split("=");
+                if ("accessToken" === entry[0]) {
+                    accessToken = entry[1];
+                }
+                if ("openId" === entry[0]) {
+                    openId = entry[1];
+                }
+            }
+        }
+        console.log("accessToken is " + accessToken);
+        console.log("openId is " + openId);
+    }
+
+    function bindingWx() {
+        var realName = $('#realName').val();
+        var idCard = $('#idCard').val()
+
+        if( undefined == realName || null == realName || '' == realName){
+            $.alert("真实姓名不能为空!" , "温馨提示：", function () {
+                return true;
+            });
+            return;
+        }
+        if( undefined == idCard || null == idCard || '' == idCard){
+            $.alert("身份证号不能为空！", "温馨提示：", function () {
+                return true;
+            });
+            return;
+        }
+        if( idCard.length != 18 && idCard.length != 15){
+            $.alert("身份证号长度错误！", "温馨提示：", function () {
+                return true;
+            });
+            return;
+        }
+
+        var url = testUrl + "binding";
+        var data = {
+            "realName": realName,
+            "idCard": idCard,
+            "openId": openId
+        };
+        var param = {
+            "data": JSON.stringify(data)
+        };
+        console.log("---binding url is " + url);
+        console.log("---param is " + param);
+        $.ax(url, param, function (result) {
+            if ("1" != result.code) { //调用失败
+                $.alert(result.data, "温馨提示：", function () {
+                    return true;
+                });
+                return;
+            }
+            var data = result.data;
+            var backurlStr = data.split("?")[0];
+            var resultStr = data.split("?")[1];
+            if (undefined != resultStr && resultStr != null && resultStr != '') {
+                //清空sessionStorage
+                sessionStorage.clear();
+                var paramList = resultStr.split('&');
+                for (var i = 0; i < paramList.length; i++) {
+                    var paramName = paramList[i].split('=')[0];
+                    var paramValue = paramList[i].split('=')[1];
+                    sessionStorage.setItem(paramName, paramValue);
+                    setCookie(paramName, paramValue,1);
+                }
+            }
+            var date = new Date();
+            sessionStorage.setItem("loginTime",date);
+            setCookie("loginTime", date, 1);
+            window.location.href = backurlStr;
+        }, function (e) {
+            $.alert("绑定异常", "温馨提示：", function () {
+                return true;
+            });
+            return;
+        });
+    }
+
+    //设置cookie
+    function setCookie(c_name, value, expiredays) {
+        var exdate = new Date();
+        exdate.setDate(exdate.getDate() + expiredays);
+        document.cookie = c_name + "=" + escape(value) +
+            ((expiredays == null) ? "" : ";expires=" + exdate.toGMTString());
+    }
+
+    function cancelLogin() {
+        window.location.href = "index.html";
+    }
+    // 在需要监听的页面执行该方法
+    pushHistory();
+    window.addEventListener("popstate", function(e) {
+        window.location.href = 'index.html';
+    }, false);
+    //封装一下push历史记录的方法
+    function pushHistory() {
+        var state = {
+            title: "title",
+            url: "#"
+        };
+        window.history.pushState(state, "title", "");
+    }
+
+</script>
+</html>

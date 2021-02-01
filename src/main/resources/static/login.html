@@ -1,0 +1,188 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="renderer" content="webkit">
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+    <meta http-equiv="pragram" content="no-cache">
+    <meta http-equiv="cache-control" content="no-cache, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <title>欢迎您访问宝鸡人社微信公众号</title>
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="css/mui.css" rel="stylesheet" type="text/css"/>
+    <link href="css/weui.css" rel="stylesheet" type="text/css"/>
+    <link href="css/weuix.css" rel="stylesheet" type="text/css"/>
+    <link href="css/css.css" rel="stylesheet" type="text/css"/>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]> -->
+    <!--<script src="//cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>-->
+    <!--<script src="//cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>-->
+    <!-- [endif] -->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/mui.min.js"></script>
+    <script src="js/rem.js"></script>
+    <script src="js/zepto.min.js"></script>
+    <script src="js/zepto.weui.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/ajax.js"></script>
+    <script src="js/securty.js"></script>
+    <script src="js/jsencrypt.js"></script>
+    <script src="js/jsencrypt.min.js"></script>
+    <script src="js/rsaUtil.js"></script>
+</head>
+
+<body class="loginbody">
+<header class="mui-bar mui-bar-nav">
+    <h1 class="mui-title">登录</h1>
+</header>
+<div class="mui-content">
+    <main class="top-login"></main>
+    <h3 class="logintitle">服务密码登录</h3>
+    <section class="loginpanel">
+        <form class="mui-input-group">
+            <div class="mui-input-row">
+                <span class="idimg"></span>
+                <input type="text" name="username" id="username" class="mui-input-clear" placeholder="请输入社保卡号码">
+            </div>
+            <div class="mui-input-row">
+                <span class="passwordimg"></span>
+                <input type="password" name="password" id="password" class="mui-input-password" placeholder="请输入密码">
+            </div>
+            <div class="mui-button-row" style="margin-top: 35px;">
+                <button type="button" class="weui-btn bg-blue btn" onclick="loginWx()">登录</button>
+                <button type="button" class="weui-btn bg-blue btn" onclick="loginWeChat()">微信登录</button>
+                <button type="button" class="weui-btn bg-blue btn" style="background-color: #eceff2;color: black;" onclick="cancelLogin()">取消</button>
+                <!--<button type="button" class="mui-btn mui-btn-primary" onclick="loginWx()" style="width:80px;">确认</button>-->
+                <!--<button type="button" class="mui-btn mui-btn-primary" style="width:80px;margin-left: 10px;">取消</button>-->
+            </div>
+        </form>
+    </section>
+</div>
+</body>
+<script>
+    function changeLoginMode(selectMode) {
+        if( "1" == selectMode ){
+            $('#sbk-login').removeClass("none-login");
+            $('#account-login').removeClass("active-login");
+            $('#sbk-login').addClass("active-login");
+            $('#account-login').addClass("none-login");
+            $('#username').attr('placeholder','请输入社保卡账号');
+            mode = "1";
+        }else{
+            $('#sbk-login').removeClass("active-login");
+            $('#account-login').removeClass("none-login");
+            $('#sbk-login').addClass("none-login");
+            $('#account-login').addClass("active-login");
+            $('#username').attr('placeholder','请输入账号|手机号|身份证号码');
+            mode = "2";
+        }
+    }
+    function loginWeChat() {
+        window.location="https://open.weixin.qq.com/connect/oauth2/authorize?appid=" + appid + "&redirect_uri=" + testUrl + "redirect&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
+    }
+
+    function loginWx() {
+        var username = $('#username').val();
+        var password = $('#password').val()
+
+        if( undefined == username || null == username || '' == username){
+            $.alert("社保卡号码不能为空!" , "温馨提示：", function () {
+                return true;
+            });
+            return;
+        }
+
+        if( undefined == password || null == password || '' == password){
+            $.alert("密码不能为空！", "温馨提示：", function () {
+                return true;
+            });
+            return;
+        }
+
+        //密码RSA加密
+        var pswEnc = encrypt(password);
+        let pswEncVal = encodeURI(pswEnc).replace(/\+/g, '%2B');
+
+        //密码加密
+        // setMaxDigits(130);
+        // var key = new RSAKeyPair("10001", "", "882723b4030365629862f7e21a0d142db60521889c79caf80920c0dd048e935728b45d23dd6e81b4234d798037afc5c115d88b907534b9b3f52f1a216e04ad942569b369a57d345b0931f54fa648cbff62f202d0791a2470db5c15c2da4e30887c2bec02af69982d5d516369abb2450963395a22d4c56d60597e14d6a4e042df");
+        // var pswEnc = encryptedString(key, $('#password').val());
+
+        var directUrl = decodeURI(window.location.href);
+        var backurl = directUrl.split("?")[1].split('=')[1];
+
+        var url = ucenter_url + "sso/loginWechatBySbkno";
+
+        var param = {
+            "username": username,
+            "password": pswEncVal,
+            "userType": "0",
+            "backurl": backurl
+        };
+        $.ax(url, param, function (result) {
+            if ("1" != result.code) { //调用失败
+                $.alert(result.data, "温馨提示：", function () {
+                    return true;
+                });
+                return;
+            }
+            var data = result.data;
+            var backurlStr = data.split("?")[0];
+            var resultStr = data.split("?")[1];
+            if (undefined != resultStr && resultStr != null && resultStr != '') {
+                //清空sessionStorage
+                sessionStorage.clear();
+
+                var paramList = resultStr.split('&');
+                for (var i = 0; i < paramList.length; i++) {
+                    var paramName = paramList[i].split('=')[0];
+                    var paramValue = paramList[i].split('=')[1];
+                    sessionStorage.setItem(paramName, paramValue);
+                    setCookie(paramName, paramValue,1);
+                }
+            }
+            var date = new Date();
+            sessionStorage.setItem("loginTime",date);
+            setCookie("loginTime", date, 1);
+            window.location.href = backurlStr;
+        }, function (e) {
+            $.alert("登录异常", "温馨提示：", function () {
+                return true;
+            });
+            return;
+        });
+    }
+
+    //设置cookie
+    function setCookie(c_name, value, expiredays) {
+        var exdate = new Date();
+        exdate.setDate(exdate.getDate() + expiredays);
+        document.cookie = c_name + "=" + escape(value) +
+            ((expiredays == null) ? "" : ";expires=" + exdate.toGMTString());
+    }
+
+    function cancelLogin() {
+        window.location.href = "index.html";
+    }
+    // 在需要监听的页面执行该方法
+    pushHistory();
+    window.addEventListener("popstate", function(e) {
+        window.location.href = 'index.html';
+    }, false);
+    //封装一下push历史记录的方法
+    function pushHistory() {
+        var state = {
+            title: "title",
+            url: "#"
+        };
+        window.history.pushState(state, "title", "");
+    }
+
+</script>
+</html>

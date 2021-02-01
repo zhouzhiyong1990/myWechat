@@ -1,0 +1,17 @@
+var PUBKEY = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCdbjXagBUfYQcxnUD/kA1v3yYeCm7jh6C5R9qwJkSiMpgPrJQB/GQnEU/P7ZcaYF0okysOxflQ+1k0MBms9c4V78H4IZs0nCnzbSByH3v5AtxIHR1K6R3rr6xAkp7E6f09SzyB//lXXMnrdmOEtHnUyYb5j6zit4vSl8VeQzIS1QIDAQAB";
+var PRIVATEKEY = "MIICdgIBADANBgkqhkiG9w0BAQEFAASCAmAwggJcAgEAAoGBAJ1uNdqAFR9hBzGdQP+QDW/fJh4KbuOHoLlH2rAmRKIymA+slAH8ZCcRT8/tlxpgXSiTKw7F+VD7WTQwGaz1zhXvwfghmzScKfNtIHIfe/kC3EgdHUrpHeuvrECSnsTp/T1LPIH/+Vdcyet2Y4S0edTJhvmPrOK3i9KXxV5DMhLVAgMBAAECgYBA2UktvFz3FAzWjyRbIYencZBOB5Yt+4xlRgf7T4guGBEzQ6+kMcc/oI3z5La9krxNHnI6H6rXhPH14WpyKL6++hv7ugmMEPZdv3V41L0tbPGdvI/G5onCugH6HNh7YaILn6gha1oSQWkVfl6dm3gMqMk2BLiAGdX55cbdX7X2AQJBAPMLA3tx+r/JlR1xE5Rus9jTQmV5vCk1xYao3EXmOpO6HJgCxD+SfdB3S3nLNhr7mmqFvS0U0BNU99M3rnWSkGECQQCl0seuV5iqeTAX5SdLO1/ZD3uzpEiN6CMXBusU5iHHDp5Z5ir2Hh6qET3JgAfzhuAMVZGsw6X7vZcGPmFCr6b1AkA+Onetx8U4DdkMLMOioaWSwqShbsXql0X38IxVqVkeMezYTv0Iee2UzraYfJth1UH4PD3vqQCNspexkPQuTlSBAkAsWOWsO6MJnGV/TnqmxRdKHrjvfzUkNnwD8Ya3TSClcsRouISu07lRtFC47fOyblTHF69g6+YdIEQemFo8kmttAkEAozXKJVe5LvocfucD/Ja2tGfN19PVH/O1cQH7PPTSQWwEHLbWbRMvfOe41gJYJYA1ELIEElNCUf475lD8CO4H9Q==";
+
+
+function encrypt(data) {
+    var encrypt = new JSEncrypt();
+    encrypt.setPublicKey(PUBKEY);
+    return encrypt.encrypt(data);
+
+}
+
+
+function decrypt(data) {
+    var encrypt = new JSEncrypt();
+    encrypt.setPublicKey(PRIVATEKEY);
+    return decrypt.decrypt(data);
+}
